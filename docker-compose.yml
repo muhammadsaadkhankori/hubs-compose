@@ -25,44 +25,10 @@ services:
       MEDIASOUP_ANNOUNCED_IP: ${PRIVATE_NETWORK_IP}
     ports:
       - "4443:4443"
-      # This should be the same as MEDIASOUP_MIN_PORT and MEDIASOUP_MAX_PORT
-      # You might neeed to increase this number depending on how many clients you are connecting.
-      # (Keep the ports range small to improve container startup time)
       - "40000-40050:40000-40050"
       - "40000-40050:40000-40050/udp"
     volumes:
       - dialog:/code
-    working_dir: /code
-  hubs-admin:
-    build:
-      context: .
-      dockerfile: dockerfiles/hubs.Dockerfile
-    command: npm run local
-    environment:
-      INTERNAL_HOSTNAME: hubs-admin
-    healthcheck:
-      test: ["CMD", "curl", "-fk", "https://localhost:8989/admin.html"]
-    platform: linux/amd64
-    ports:
-      - "8989:8989"
-    volumes:
-      - hubs:/code
-    working_dir: /code/admin
-  hubs-client:
-    build:
-      context: .
-      dockerfile: dockerfiles/hubs.Dockerfile
-    command: npm run local
-    environment:
-      INTERNAL_HOSTNAME: hubs-client
-    healthcheck:
-      start_period: 3m30s
-      test: ["CMD", "curl", "-fk", "https://localhost:8080"]
-    platform: linux/amd64
-    ports:
-      - "8080:8080"
-    volumes:
-      - hubs:/code
     working_dir: /code
   hubs-storybook:
     build:
@@ -93,7 +59,6 @@ services:
       DB_HOST: db
       DIALOG_HOSTNAME: "hubs.local"
       DIALOG_PORT: 4443
-      HUBS_ADMIN_INTERNAL_HOSTNAME: hubs-admin
       HUBS_CLIENT_INTERNAL_HOSTNAME: hubs-client
       POSTGREST_INTERNAL_HOSTNAME: postgrest
       SPOKE_INTERNAL_HOSTNAME: spoke
