@@ -7,25 +7,19 @@ suffix='\033[0m\n'
 
 servicesdir=$basedir/services
 echo -e ${prefix}Cloning source repositories$suffix
-git clone https://github.com/mozilla/reticulum.git "$servicesdir"/reticulum
-git clone https://github.com/mozilla/dialog.git "$servicesdir"/dialog
-git clone https://github.com/mozilla/hubs.git "$servicesdir"/hubs
-git clone https://github.com/mozilla/Spoke.git "$servicesdir"/spoke
+git clone https://msaad007@bitbucket.org/inspiratio/reticulum.git "$servicesdir"/reticulum
+git clone https://msaad007@bitbucket.org/inspiratio/dialog.git "$servicesdir"/dialog
+git clone https://msaad007@bitbucket.org/inspiratio/spoke.git "$servicesdir"/spoke
 
 composefile=$basedir/docker-compose.yml
-echo -e ${prefix}Initializing Reticulum$suffix &&
+echo -e ${prefix}Building and Initializing Reticulum$suffix &&
 docker-compose -f "$composefile" build reticulum &&
-mutagen-compose -f "$composefile" run --rm reticulum sh -c 'trapped-mix do deps.get, deps.compile, ecto.create' &&
-echo -e ${prefix}Initializing Dialog$suffix &&
+mutagen-compose -f "$composefile" run --rm reticulum sh -c 'mix deps.get && mix deps.compile && mix ecto.create' &&
+echo -e ${prefix}Building and Initializing Dialog$suffix &&
 docker-compose -f "$composefile" build dialog &&
-mutagen-compose -f "$composefile" run --rm dialog conditional-npm-ci &&
-echo -e ${prefix}Initializing Hubs Admin$suffix &&
-docker-compose -f "$composefile" build hubs-admin &&
-mutagen-compose -f "$composefile" run --rm hubs-admin conditional-npm-ci &&
-echo -e ${prefix}Initializing Hubs Client$suffix &&
-docker-compose -f "$composefile" build hubs-client &&
-mutagen-compose -f "$composefile" run --rm hubs-client conditional-npm-ci &&
-echo -e ${prefix}Initializing Spoke$suffix &&
+mutagen-compose -f "$composefile" run --rm dialog npm install &&
+echo -e ${prefix}Building and Initializing Spoke$suffix &&
+docker-compose -f "$composefile" build spoke &&
 mutagen-compose -f "$composefile" run --rm spoke yarn install
 
 code=$?
